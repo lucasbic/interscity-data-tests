@@ -1,0 +1,56 @@
+Script Execução InterSCity
+
+cd interscity/interscity-platform/deploy/
+VAGRANT_VAGRANTFILE=Vagrantfile-standalone vagrant up
+cd ansible/
+ansible-playbook setup-swarm.yml -i standalone_vagrant_host
+ansible-playbook deploy-swarm-stack.yml -i standalone_vagrant_host
+
+
+Checking for a correct deployment
+Make sure you have access to your gateway host through ports 8000 and 8001. Then, if necessary, you can replace 10.10.10.104 by your gateway host address and perform the following checks:
+
+curl http://10.10.10.104:8001/upstreams
+
+should return 5 entries (all applications and the kong-api-gateway)
+
+curl http://10.10.10.104:8001/apis
+
+should return 6 entries (all applications)
+
+curl http://10.10.10.104:8000/catalog/resources
+
+curl http://10.10.10.104:8000/collector/resources/data
+
+
+1 - new capability:
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"name":"temperature", "description":"decibeis", "capability_type":"sensor"}' http://10.10.10.104:8000/catalog/capabilities | json_pp -f json
+
+2 - getting capabilities:
+curl http://10.10.10.104:8000/catalog/capabilities | json_pp -f json
+
+3 - registering a resource:
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"data":{"description": "termometro1","capabilities": ["temperature"],"status": "active","lat": -10.00032,
+          "lon": -23.200223, "collect_interval": 50, "uri":"termometro.com/term1"}}' http://10.10.10.104:8000/adaptor/resources | json_pp -f json
+
+"uuid" : "01c0c304-5068-43b6-9c40-172526a83f31"
+
+4 - getting available resources:
+curl http://10.10.10.104:8000/catalog/resources | json_pp -f json
+
+5 - post data of a resource:
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"data":{"environment_monitoring":[{"temperature":10,"timestamp":"24/11/2024T23:14:07"}]}}' http://10.10.10.104:8000/adaptor/resources/01c0c304-5068-43b6-9c40-172526a83f31/data | json_pp -f json
+
+6 - getting historical data of a resource:
+curl http://10.10.10.104:8000/collector/resources/01c0c304-5068-43b6-9c40-172526a83f31/data | json_pp -f json
+
+7 - discovery sensors with a capability
+curl http://10.10.10.104:8000/discovery/resources?capability=ruido5 | json_pp -f json
+
+
