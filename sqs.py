@@ -32,7 +32,8 @@ def receive_messages(queue_url):
 def process_and_forward(messages, endpoint_url):
     for message in messages:
         body = json.loads(message['Body'])
-        mensagem = body.get('data')
+        mensagem = json.dumps(body)
+        print("{}".format(mensagem))
         # Executando o comando curl com o subprocess para enviar o dado
         result = subprocess.run([
             'curl', '-X', 'POST',
@@ -49,8 +50,8 @@ def process_and_forward(messages, endpoint_url):
         )
 
 # Inputs
-queue_url = 'queue_url'
-message_body = {"data":{"environment_monitoring":[{"temperature":19,"timestamp":"15/12/2024T23:14:07"}]}}
+queue_url = 'https://sqs.sa-east-1.amazonaws.com/034362034555/Queue1'
+message_body = {"data":{"environment_monitoring":[{"temperature":25,"timestamp":"27/01/2025T23:14:07"}]}}
 
 # Functions Calls
 send_message(queue_url, message_body)
