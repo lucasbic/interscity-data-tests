@@ -50,7 +50,7 @@ def process_and_forward(messages, endpoint_url):
         )
 
 # Inputs
-queue_url = 'https://sqs.sa-east-1.amazonaws.com/123456789012/Queue1'
+queue_url = 'queue_url'
 message_body = {"data":{"environment_monitoring":[{"temperature":25,"timestamp":"27/01/2025T23:14:07"}]}}
 
 # Functions Calls
